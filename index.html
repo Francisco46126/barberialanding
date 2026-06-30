@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CORTE & CO. — Barbería</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#0a0a0a;
+  --white:#ffffff;
+  --gray-100:#f5f5f5;
+  --gray-200:#e5e5e5;
+  --gray-400:#a3a3a3;
+  --gray-600:#525252;
+  --gray-800:#262626;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--white);color:var(--black);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* SCROLL PROGRESS BAR */
+.scroll-progress{position:fixed;top:0;left:0;height:2px;background:var(--black);z-index:201;width:0%;transition:width 0.1s linear}
+
+/* REVEAL ON SCROLL */
+.reveal{opacity:0;transform:translateY(36px);transition:opacity 0.8s cubic-bezier(0.16,1,0.3,1),transform 0.8s cubic-bezier(0.16,1,0.3,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1.visible{transition-delay:0.1s}
+.reveal-delay-2.visible{transition-delay:0.2s}
+.reveal-delay-3.visible{transition-delay:0.3s}
+.reveal-delay-4.visible{transition-delay:0.4s}
+.reveal-scale{opacity:0;transform:scale(0.92);transition:opacity 0.9s cubic-bezier(0.16,1,0.3,1),transform 0.9s cubic-bezier(0.16,1,0.3,1)}
+.reveal-scale.visible{opacity:1;transform:scale(1)}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 3rem;height:64px;
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid transparent;
+  transition:background 0.35s ease,border-color 0.35s ease,box-shadow 0.35s ease;
+}
+nav.scrolled{background:rgba(255,255,255,0.95);border-bottom:1px solid var(--gray-200);box-shadow:0 1px 24px rgba(0,0,0,0.04)}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.08em;color:var(--black);text-decoration:none}
+.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links a{position:relative;color:var(--gray-600);text-decoration:none;font-size:0.75rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;transition:color 0.25s;padding-bottom:4px}
+.nav-links a::after{content:'';position:absolute;left:0;bottom:0;width:100%;height:1px;background:var(--black);transform:scaleX(0);transform-origin:right;transition:transform 0.3s cubic-bezier(0.65,0,0.35,1)}
+.nav-links a:hover{color:var(--black)}
+.nav-links a:hover::after{transform:scaleX(1);transform-origin:left}
+.nav-cta{background:var(--black);color:var(--white);padding:0.55rem 1.4rem;font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;transition:transform 0.25s,opacity 0.25s;display:inline-block}
+.nav-cta:hover{opacity:0.8;transform:translateY(-2px)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none}
+.hamburger span{display:block;width:22px;height:1.5px;background:var(--black)}
+.mobile-menu{display:none;position:fixed;top:64px;left:0;right:0;background:var(--white);border-bottom:1px solid var(--gray-200);padding:1.5rem 2rem;flex-direction:column;gap:1.2rem;z-index:99}
+.mobile-menu.open{display:flex}
+.mobile-menu a{color:var(--gray-600);text-decoration:none;font-size:0.82rem;letter-spacing:0.1em;text-transform:uppercase;font-weight:500}
+
+/* HERO */
+#hero{height:100vh;min-height:600px;display:grid;grid-template-columns:1fr 1fr;padding-top:64px}
+.hero-left{display:flex;flex-direction:column;justify-content:center;padding:4rem 3rem;border-right:1px solid var(--gray-200)}
+.hero-eyebrow{font-size:0.68rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gray-400);margin-bottom:1.5rem;opacity:0;animation:fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.1s forwards}
+.hero-left h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(4rem,7vw,6.5rem);line-height:0.95;letter-spacing:0.02em;color:var(--black);margin-bottom:2rem;opacity:0;animation:fadeUp 0.9s cubic-bezier(0.16,1,0.3,1) 0.25s forwards}
+.hero-left h1 span{color:var(--gray-400)}
+.hero-desc{font-size:0.95rem;line-height:1.8;color:var(--gray-600);max-width:380px;margin-bottom:2.5rem;opacity:0;animation:fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.45s forwards}
+.hero-actions{display:flex;gap:1rem;align-items:center;opacity:0;animation:fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) 0.6s forwards}
+.btn-dark{background:var(--black);color:var(--white);text-decoration:none;padding:0.85rem 2rem;font-size:0.75rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;transition:transform 0.25s,opacity 0.25s;display:inline-block}
+.btn-dark:hover{opacity:0.8;transform:translateY(-2px)}
+.btn-outline{color:var(--black);text-decoration:none;font-size:0.75rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid var(--black);padding-bottom:2px;transition:opacity 0.2s}
+.btn-outline:hover{opacity:0.5}
+.hero-right{position:relative;overflow:hidden;background:var(--black);opacity:0;animation:fadeIn 1.2s ease 0.2s forwards}
+.hero-right img{width:100%;height:100%;object-fit:cover;opacity:0.85;transition:transform 8s ease}
+.hero-right:hover img{transform:scale(1.04)}
+.hero-tag{position:absolute;bottom:2rem;left:2rem;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.4)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* FOTOS */
+#fotos{padding:5rem 3rem;background:var(--white)}
+.section-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:3rem}
+.section-label{font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gray-400);margin-bottom:0.5rem}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,4vw,3.5rem);letter-spacing:0.03em;line-height:1}
+.fotos-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:auto auto;gap:1px;background:var(--gray-200)}
+.foto-item{position:relative;overflow:hidden;background:var(--black);cursor:pointer}
+.foto-item:first-child{grid-row:span 2;min-height:520px}
+.foto-item:not(:first-child){min-height:258px}
+.foto-item img{width:100%;height:100%;object-fit:cover;opacity:0.92;transition:transform 0.7s cubic-bezier(0.16,1,0.3,1),opacity 0.4s ease}
+.foto-item:hover img{transform:scale(1.06);opacity:0.75}
+.foto-item::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.35),transparent 50%);opacity:0;transition:opacity 0.4s ease}
+.foto-item:hover::after{opacity:1}
+
+/* NOSOTROS */
+#nosotros{padding:6rem 3rem;background:var(--gray-100);display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center}
+.nosotros-img-wrap{position:relative}
+.nosotros-img{width:100%;aspect-ratio:3/4;object-fit:cover;filter:grayscale(100%)}
+.nosotros-badge{position:absolute;bottom:-1.5rem;right:-1.5rem;width:120px;height:120px;background:var(--black);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.badge-num{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:var(--white);line-height:1}
+.badge-text{font-size:0.58rem;letter-spacing:0.15em;text-transform:uppercase;color:rgba(255,255,255,0.5)}
+.nosotros-text .section-label{margin-bottom:0.5rem}
+.nosotros-text .section-title{margin-bottom:1.5rem}
+.nosotros-text p{font-size:0.95rem;line-height:1.8;color:var(--gray-600);margin-bottom:1.2rem}
+.nosotros-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:3rem;padding-top:2.5rem;border-top:1px solid var(--gray-200)}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;line-height:1;color:var(--black)}
+.stat-label{font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-400);margin-top:0.25rem}
+
+/* SERVICIOS */
+#servicios{padding:5rem 3rem;background:var(--white)}
+.servicios-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--gray-200);margin-top:3rem}
+.servicio-card{background:var(--white);padding:2.5rem 2rem;transition:background 0.35s cubic-bezier(0.16,1,0.3,1),transform 0.35s cubic-bezier(0.16,1,0.3,1);position:relative;z-index:1}
+.servicio-card:hover{background:var(--black);transform:translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,0.15)}
+.servicio-card:hover .serv-num,.servicio-card:hover .serv-title,.servicio-card:hover .serv-price{color:var(--white)}
+.servicio-card:hover .serv-desc{color:rgba(255,255,255,0.5)}
+.serv-num{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gray-200);transition:color 0.35s;display:block;margin-bottom:1.5rem}
+.serv-title{font-size:1rem;font-weight:600;color:var(--black);transition:color 0.35s;margin-bottom:0.5rem}
+.serv-desc{font-size:0.82rem;line-height:1.6;color:var(--gray-400);transition:color 0.35s;margin-bottom:1.5rem}
+.serv-price{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--black);transition:color 0.35s}
+
+/* TESTIMONIOS */
+#testimonios{padding:5rem 3rem;background:var(--gray-100)}
+.testimonios-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:3rem;gap:2rem}
+.btn-reviews{display:inline-flex;align-items:center;gap:0.5rem;background:var(--white);border:1px solid var(--gray-200);color:var(--black);text-decoration:none;padding:0.7rem 1.4rem;font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;transition:background 0.2s,color 0.2s;white-space:nowrap;flex-shrink:0;align-self:flex-end;cursor:pointer}
+.btn-reviews:hover{background:var(--black);color:var(--white);border-color:var(--black)}
+.testimonios-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--gray-200)}
+.testimonio-card{background:var(--white);padding:2rem;transition:transform 0.3s cubic-bezier(0.16,1,0.3,1),box-shadow 0.3s ease;position:relative;z-index:1}
+.testimonio-card:hover{transform:translateY(-4px);box-shadow:0 16px 32px rgba(0,0,0,0.08)}
+.stars{font-size:12px;color:var(--black);margin-bottom:1rem;letter-spacing:2px}
+.testimonio-text{font-size:0.9rem;line-height:1.75;color:var(--gray-600);margin-bottom:1.5rem;font-style:italic}
+.testimonio-author{font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--black)}
+.testimonio-date{font-size:0.67rem;color:var(--gray-400);margin-top:0.25rem}
+
+/* TURNO */
+#turno{padding:6rem 3rem;background:var(--black);display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+.turno-text .section-label{color:rgba(255,255,255,0.35)}
+.turno-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,5vw,4.5rem);letter-spacing:0.03em;line-height:1;color:var(--white);margin-bottom:1.5rem}
+.turno-desc{font-size:0.95rem;line-height:1.8;color:rgba(255,255,255,0.5);margin-bottom:2.5rem}
+.turno-pasos{display:flex;flex-direction:column;gap:1.2rem;margin-bottom:2.5rem}
+.turno-paso{display:flex;align-items:flex-start;gap:1rem}
+.paso-num{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:rgba(255,255,255,0.2);flex-shrink:0;width:28px;padding-top:2px}
+.paso-info strong{display:block;font-size:0.82rem;font-weight:600;color:var(--white);margin-bottom:0.15rem}
+.paso-info span{font-size:0.78rem;color:rgba(255,255,255,0.4)}
+.btn-white{background:var(--white);color:var(--black);text-decoration:none;padding:1rem 2.5rem;font-size:0.78rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;transition:opacity 0.2s;display:inline-block}
+.btn-white:hover{opacity:0.8}
+.horarios{border:1px solid rgba(255,255,255,0.1);padding:2rem}
+.horario-titulo{font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:1.2rem}
+.horario-row{display:flex;justify-content:space-between;padding:0.65rem 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:0.82rem}
+.horario-row:last-child{border-bottom:none}
+.horario-dia{color:rgba(255,255,255,0.5)}
+.horario-hora{color:var(--white);font-weight:500}
+.horario-cerrado{color:rgba(255,255,255,0.2)}
+
+/* UBICACIÓN */
+#ubicacion{padding:5rem 3rem;background:var(--white)}
+.ubicacion-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:4rem;align-items:start;margin-top:3rem}
+.ubicacion-info{display:flex;flex-direction:column;gap:2rem}
+.info-block-label{font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gray-400);margin-bottom:0.4rem}
+.info-block-val{font-size:0.95rem;color:var(--black);line-height:1.6;font-weight:500}
+.info-block-val a{color:var(--black);text-decoration:none;border-bottom:1px solid var(--gray-200)}
+.info-block-val a:hover{border-color:var(--black)}
+.mapa-wrap{aspect-ratio:16/10;background:var(--gray-100);border:1px solid var(--gray-200);overflow:hidden;position:relative}
+.mapa-wrap iframe{width:100%;height:100%;border:none;filter:grayscale(100%) contrast(1.05)}
+.mapa-overlay-btn{position:absolute;bottom:1rem;right:1rem;background:var(--white);border:1px solid var(--gray-200);padding:0.6rem 1rem;font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;text-decoration:none;color:var(--black);display:flex;align-items:center;gap:0.4rem}
+.mapa-overlay-btn:hover{background:var(--black);color:var(--white);border-color:var(--black)}
+
+/* FOOTER */
+footer{background:var(--black);padding:4rem 3rem 2.5rem}
+.footer-top{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:3rem;margin-bottom:3rem;padding-bottom:3rem;border-bottom:1px solid rgba(255,255,255,0.08)}
+.footer-brand{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:0.06em;color:var(--white);margin-bottom:0.75rem}
+.footer-tagline{font-size:0.82rem;color:rgba(255,255,255,0.35);line-height:1.6;margin-bottom:1.5rem}
+.footer-social{display:flex;gap:1rem}
+.footer-social a{font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);text-decoration:none;transition:color 0.2s}
+.footer-social a:hover{color:var(--white)}
+.footer-col-title{font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:1.2rem}
+.footer-links{list-style:none;display:flex;flex-direction:column;gap:0.7rem}
+.footer-links a{font-size:0.82rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s}
+.footer-links a:hover{color:var(--white)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;font-size:0.72rem;color:rgba(255,255,255,0.2)}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;padding:1rem}
+.modal-bg.open{display:flex}
+.modal{background:var(--white);width:100%;max-width:480px;padding:2.5rem;position:relative}
+.modal-close{position:absolute;top:1.2rem;right:1.2rem;background:none;border:none;cursor:pointer;font-size:1.5rem;color:var(--gray-400);line-height:1}
+.modal h3{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:0.05em;margin-bottom:1.5rem}
+.modal-form{display:flex;flex-direction:column;gap:1rem}
+.modal-form label{font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--gray-400);display:block;margin-bottom:0.3rem}
+.modal-form input,.modal-form textarea{width:100%;border:1px solid var(--gray-200);padding:0.75rem 0.9rem;font-family:'Inter',sans-serif;font-size:0.88rem;color:var(--black);outline:none;background:var(--white);transition:border-color 0.2s}
+.modal-form input:focus,.modal-form textarea:focus{border-color:var(--black)}
+.modal-form textarea{min-height:100px;resize:vertical}
+.modal-stars{display:flex;gap:0.5rem;margin-bottom:0.25rem}
+.modal-star{font-size:1.5rem;cursor:pointer;color:var(--gray-200);transition:color 0.15s;user-select:none}
+.modal-star.active{color:var(--black)}
+.modal-submit{background:var(--black);color:var(--white);border:none;padding:0.9rem 2rem;font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;width:100%}
+.modal-submit:hover{opacity:0.75}
+.modal-note{font-size:0.72rem;color:var(--gray-400);text-align:center;line-height:1.5}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  #hero{grid-template-columns:1fr}
+  .hero-right{min-height:50vh}
+  .hero-left{border-right:none;border-bottom:1px solid var(--gray-200)}
+  #nosotros{grid-template-columns:1fr;gap:3rem}
+  .servicios-grid{grid-template-columns:repeat(2,1fr)}
+  #turno{grid-template-columns:1fr;gap:3rem}
+  .ubicacion-grid{grid-template-columns:1fr;gap:2rem}
+  .footer-top{grid-template-columns:1fr 1fr}
+  .testimonios-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+  nav{padding:0 1.25rem}
+  .nav-links,.nav-cta{display:none}
+  .hamburger{display:flex}
+  #hero,.hero-left,#nosotros,#servicios,#testimonios,#turno,#ubicacion,footer,#fotos{padding-left:1.25rem;padding-right:1.25rem}
+  .fotos-grid{grid-template-columns:1fr 1fr}
+  .foto-item:first-child{grid-row:span 1;grid-column:span 2}
+  .servicios-grid{grid-template-columns:1fr}
+  .testimonios-grid{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr}
+  .footer-bottom{flex-direction:column;gap:0.5rem;text-align:center}
+  .testimonios-header{flex-direction:column;align-items:flex-start}
+  .nosotros-badge{bottom:-1rem;right:-0.5rem}
+}
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a href="#" class="nav-logo">CORTE &amp; CO.</a>
+  <ul class="nav-links">
+    <li><a href="#fotos">Trabajos</a></li>
+    <li><a href="#nosotros">Nosotros</a></li>
+    <li><a href="#servicios">Servicios</a></li>
+    <li><a href="#testimonios">Reseñas</a></li>
+    <li><a href="#ubicacion">Ubicación</a></li>
+  </ul>
+  <a href="https://calendly.com/tu-usuario" target="_blank" class="nav-cta">Sacar turno</a>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#fotos" onclick="closeMobileMenu()">Trabajos</a>
+  <a href="#nosotros" onclick="closeMobileMenu()">Nosotros</a>
+  <a href="#servicios" onclick="closeMobileMenu()">Servicios</a>
+  <a href="#testimonios" onclick="closeMobileMenu()">Reseñas</a>
+  <a href="#ubicacion" onclick="closeMobileMenu()">Ubicación</a>
+  <a href="https://calendly.com/tu-usuario" target="_blank" style="color:var(--black);font-weight:700">Sacar turno →</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-left">
+    <p class="hero-eyebrow">Barbería · Escobar, Buenos Aires</p>
+    <h1>EL<br><span>MEJOR</span><br>CORTE.</h1>
+    <p class="hero-desc">Más de 10 años perfeccionando cada detalle. Corte clásico, fade, barba — ejecutado con precisión y sin apuro.</p>
+    <div class="hero-actions">
+      <a href="https://calendly.com/tu-usuario" target="_blank" class="btn-dark">Reservar turno</a>
+      <a href="#fotos" class="btn-outline">Ver trabajos</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=1200&q=80&auto=format&fit=crop" alt="Barbería interior">
+    <p class="hero-tag">Corte &amp; Co. — Est. 2014</p>
+  </div>
+</section>
+
+<!-- FOTOS -->
+<section id="fotos">
+  <div class="section-header reveal">
+    <div>
+      <p class="section-label">Portfolio</p>
+      <h2 class="section-title">NUESTROS<br>TRABAJOS</h2>
+    </div>
+  </div>
+  <div class="fotos-grid">
+    <div class="foto-item reveal-scale">
+      <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=900&q=80&auto=format&fit=crop" alt="Corte fade">
+    </div>
+    <div class="foto-item reveal-scale reveal-delay-1">
+      <img src="https://images.unsplash.com/photo-1605497788044-5a32c7078486?w=800&q=80&auto=format&fit=crop" alt="Corte clásico">
+    </div>
+    <div class="foto-item reveal-scale reveal-delay-2">
+      <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800&q=80&auto=format&fit=crop" alt="Arreglo de barba">
+    </div>
+    <div class="foto-item reveal-scale reveal-delay-1">
+      <img src="https://images.unsplash.com/photo-1599351431613-18ef1fdd27e9?w=800&q=80&auto=format&fit=crop" alt="Barbería estilo">
+    </div>
+    <div class="foto-item reveal-scale reveal-delay-2">
+      <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=800&q=80&auto=format&fit=crop" alt="Detalle de fade">
+    </div>
+  </div>
+</section>
+
+<!-- NOSOTROS -->
+<section id="nosotros">
+  <div class="nosotros-img-wrap reveal">
+    <img src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=900&q=80&auto=format&fit=crop" alt="Barbero trabajando" class="nosotros-img">
+    <div class="nosotros-badge">
+      <span class="badge-num" data-count="10">0</span>
+      <span class="badge-text">Años</span>
+    </div>
+  </div>
+  <div class="nosotros-text reveal">
+    <p class="section-label">Quiénes somos</p>
+    <h2 class="section-title">SOBRE<br>NOSOTROS</h2>
+    <p>Somos una barbería con raíces clásicas y mirada moderna. Desde 2014 atendemos a hombres que entienden que un buen corte no es un lujo, es una necesidad.</p>
+    <p>Cada cliente entra y sale con el tiempo que merece. Sin apuro. Sin compromisos con la calidad. Nuestro equipo de barberos formados en técnicas europeas combina la tradición del oficio con las tendencias actuales.</p>
+    <p>Trabajamos solo con productos de primera línea: Reuzel, American Crew y Wahl Professional.</p>
+    <div class="nosotros-stats">
+      <div>
+        <p class="stat-num" data-count="10" data-suffix="+">0</p>
+        <p class="stat-label">Años en el oficio</p>
+      </div>
+      <div>
+        <p class="stat-num" data-count="4.9" data-decimal="true">0</p>
+        <p class="stat-label">Promedio Google</p>
+      </div>
+      <div>
+        <p class="stat-num" data-count="3">0</p>
+        <p class="stat-label">Barberos expertos</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<section id="servicios">
+  <div class="section-header reveal">
+    <div>
+      <p class="section-label">Lo que hacemos</p>
+      <h2 class="section-title">SERVICIOS</h2>
+    </div>
+  </div>
+  <div class="servicios-grid">
+    <div class="servicio-card reveal">
+      <span class="serv-num">01</span>
+      <h3 class="serv-title">Corte clásico</h3>
+      <p class="serv-desc">Tijera y máquina. Definición limpia, líneas perfectas. El clásico que nunca falla.</p>
+      <p class="serv-price">$4.500</p>
+    </div>
+    <div class="servicio-card reveal reveal-delay-1">
+      <span class="serv-num">02</span>
+      <h3 class="serv-title">Fade &amp; Skin</h3>
+      <p class="serv-desc">Degradado desde cero. Alto, medio o bajo, al nivel de detalle que querés.</p>
+      <p class="serv-price">$5.500</p>
+    </div>
+    <div class="servicio-card reveal reveal-delay-2">
+      <span class="serv-num">03</span>
+      <h3 class="serv-title">Barba</h3>
+      <p class="serv-desc">Perfilado, arreglo o afeitado clásico con toalla caliente y navaja recta.</p>
+      <p class="serv-price">$3.000</p>
+    </div>
+    <div class="servicio-card reveal reveal-delay-3">
+      <span class="serv-num">04</span>
+      <h3 class="serv-title">Combo full</h3>
+      <p class="serv-desc">Corte + barba + tratamiento. La experiencia completa para salir impecable.</p>
+      <p class="serv-price">$7.500</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIOS -->
+<section id="testimonios">
+  <div class="testimonios-header reveal">
+    <div>
+      <p class="section-label">Lo que dicen</p>
+      <h2 class="section-title">RESEÑAS</h2>
+    </div>
+    <button class="btn-reviews" onclick="openModal()">★ Dejar reseña en Google</button>
+  </div>
+  <div class="testimonios-grid" id="testimoniosGrid">
+    <div class="testimonio-card reveal">
+      <div class="stars">★★★★★</div>
+      <p class="testimonio-text">"Llevaba meses buscando alguien que me hiciera bien el fade. Acá lo encontré. La atención es de otro nivel, te toman el tiempo que necesitás."</p>
+      <p class="testimonio-author">Matías R.</p>
+      <p class="testimonio-date">Hace 2 semanas · via Google</p>
+    </div>
+    <div class="testimonio-card reveal reveal-delay-1">
+      <div class="stars">★★★★★</div>
+      <p class="testimonio-text">"El lugar tiene una onda increíble. Fui por primera vez y ya sé que vuelvo. El corte quedó exactamente como pedí."</p>
+      <p class="testimonio-author">Lucas G.</p>
+      <p class="testimonio-date">Hace 1 mes · via Google</p>
+    </div>
+    <div class="testimonio-card reveal reveal-delay-2">
+      <div class="stars">★★★★★</div>
+      <p class="testimonio-text">"El afeitado con navaja fue una experiencia. Profesionales de verdad, se nota la pasión por el oficio. 100% recomendado."</p>
+      <p class="testimonio-author">Facundo M.</p>
+      <p class="testimonio-date">Hace 3 semanas · via Google</p>
+    </div>
+  </div>
+</section>
+
+<!-- TURNO -->
+<section id="turno">
+  <div class="turno-text reveal">
+    <p class="section-label">Reservas</p>
+    <h2 class="turno-title">SACÁ<br>TU<br>TURNO</h2>
+    <p class="turno-desc">Sin colas, sin esperas. Elegís el día, el horario y el servicio. En dos minutos tenés tu turno confirmado.</p>
+    <div class="turno-pasos">
+      <div class="turno-paso">
+        <span class="paso-num">01</span>
+        <div class="paso-info"><strong>Elegí el servicio</strong><span>Corte, barba o combo completo</span></div>
+      </div>
+      <div class="turno-paso">
+        <span class="paso-num">02</span>
+        <div class="paso-info"><strong>Seleccioná fecha y hora</strong><span>Disponibilidad en tiempo real</span></div>
+      </div>
+      <div class="turno-paso">
+        <span class="paso-num">03</span>
+        <div class="paso-info"><strong>Confirmación instantánea</strong><span>Te llega recordatorio por email</span></div>
+      </div>
+    </div>
+    <a href="https://calendly.com/tu-usuario" target="_blank" class="btn-white">Reservar ahora →</a>
+  </div>
+  <div class="horarios reveal reveal-delay-2">
+    <p class="horario-titulo">Horarios de atención</p>
+    <div class="horario-row"><span class="horario-dia">Lunes</span><span class="horario-hora">9:00 – 20:00</span></div>
+    <div class="horario-row"><span class="horario-dia">Martes</span><span class="horario-hora">9:00 – 20:00</span></div>
+    <div class="horario-row"><span class="horario-dia">Miércoles</span><span class="horario-hora">9:00 – 20:00</span></div>
+    <div class="horario-row"><span class="horario-dia">Jueves</span><span class="horario-hora">9:00 – 20:00</span></div>
+    <div class="horario-row"><span class="horario-dia">Viernes</span><span class="horario-hora">9:00 – 21:00</span></div>
+    <div class="horario-row"><span class="horario-dia">Sábado</span><span class="horario-hora">9:00 – 18:00</span></div>
+    <div class="horario-row"><span class="horario-dia">Domingo</span><span class="horario-cerrado">Cerrado</span></div>
+  </div>
+</section>
+
+<!-- UBICACIÓN -->
+<section id="ubicacion">
+  <div class="reveal">
+    <p class="section-label">Dónde estamos</p>
+    <h2 class="section-title">UBICACIÓN</h2>
+  </div>
+  <div class="ubicacion-grid">
+    <div class="ubicacion-info reveal">
+      <div>
+        <p class="info-block-label">Dirección</p>
+        <p class="info-block-val">Av. San Martín 1245, Local 3<br>Escobar, Buenos Aires</p>
+      </div>
+      <div>
+        <p class="info-block-label">Teléfono / WhatsApp</p>
+        <p class="info-block-val"><a href="https://wa.me/5491112345678" target="_blank">+54 9 11 1234-5678</a></p>
+      </div>
+      <div>
+        <p class="info-block-label">Email</p>
+        <p class="info-block-val"><a href="mailto:hola@corteandco.com">hola@corteandco.com</a></p>
+      </div>
+      <div>
+        <p class="info-block-label">Instagram</p>
+        <p class="info-block-val"><a href="https://instagram.com/corteandco" target="_blank">@corteandco</a></p>
+      </div>
+      <a href="https://maps.google.com/?q=Av.+San+Martín+1245,+Escobar" target="_blank" class="btn-dark" style="width:fit-content">Cómo llegar →</a>
+    </div>
+    <div class="mapa-wrap reveal reveal-delay-1">
+      <!--
+        Para poner TU mapa:
+        1. Abrí Google Maps y buscá la dirección
+        2. Hacé clic en "Compartir" > "Insertar un mapa"
+        3. Copiá la URL que aparece en el iframe y reemplazá el src de abajo
+      -->
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3288.075932068488!2d-58.801330124502!3d-34.34700!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bc9b4af8a3e2d1%3A0x1!2sEscobar%2C+Buenos+Aires!5e0!3m2!1ses!2sar!4v1"
+        allowfullscreen loading="lazy" title="Ubicación Corte &amp; Co."
+      ></iframe>
+      <a href="https://maps.google.com/?q=Av.+San+Martín+1245,+Escobar" target="_blank" class="mapa-overlay-btn">Abrir en Maps ↗</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <p class="footer-brand">CORTE &amp; CO.</p>
+      <p class="footer-tagline">Barbería clásica con mirada moderna.<br>Escobar, Buenos Aires desde 2014.</p>
+      <div class="footer-social">
+        <a href="https://instagram.com/corteandco" target="_blank">Instagram</a>
+        <a href="https://facebook.com/corteandco" target="_blank">Facebook</a>
+        <a href="https://wa.me/5491112345678" target="_blank">WhatsApp</a>
+      </div>
+    </div>
+    <div>
+      <p class="footer-col-title">Navegación</p>
+      <ul class="footer-links">
+        <li><a href="#fotos">Trabajos</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#servicios">Servicios</a></li>
+        <li><a href="#testimonios">Reseñas</a></li>
+        <li><a href="#turno">Sacar turno</a></li>
+        <li><a href="#ubicacion">Ubicación</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer-col-title">Contacto</p>
+      <ul class="footer-links">
+        <li><a href="tel:+5491112345678">+54 9 11 1234-5678</a></li>
+        <li><a href="mailto:hola@corteandco.com">hola@corteandco.com</a></li>
+        <li><a href="https://maps.google.com" target="_blank">Av. San Martín 1245, Escobar</a></li>
+        <li style="margin-top:1rem"><a href="https://calendly.com/tu-usuario" target="_blank" style="color:rgba(255,255,255,0.65)">→ Reservar turno online</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Corte &amp; Co. Todos los derechos reservados.</p>
+    <p>Diseñado con precisión.</p>
+  </div>
+</footer>
+
+<!-- MODAL RESEÑA -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()" aria-label="Cerrar">×</button>
+    <h3>DEJAR RESEÑA</h3>
+    <div class="modal-form">
+      <div>
+        <label>Tu calificación</label>
+        <div class="modal-stars" id="modalStars">
+          <span class="modal-star" data-val="1">★</span>
+          <span class="modal-star" data-val="2">★</span>
+          <span class="modal-star" data-val="3">★</span>
+          <span class="modal-star" data-val="4">★</span>
+          <span class="modal-star" data-val="5">★</span>
+        </div>
+      </div>
+      <div>
+        <label for="m-nombre">Tu nombre</label>
+        <input type="text" id="m-nombre" placeholder="Ej: Matías R.">
+      </div>
+      <div>
+        <label for="m-texto">Tu experiencia</label>
+        <textarea id="m-texto" placeholder="Contá cómo te fue en la barbería..."></textarea>
+      </div>
+      <button class="modal-submit" onclick="submitReview()">Publicar en Google →</button>
+      <p class="modal-note">Te vamos a redirigir a Google Maps para que confirmes tu reseña desde tu cuenta.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleMenu(){document.getElementById('mobileMenu').classList.toggle('open')}
+function closeMobileMenu(){document.getElementById('mobileMenu').classList.remove('open')}
+
+// ─── SCROLL PROGRESS + NAV STATE ───
+const progressBar = document.getElementById('scrollProgress');
+const mainNav = document.getElementById('mainNav');
+
+function onScroll(){
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  progressBar.style.width = pct + '%';
+  mainNav.classList.toggle('scrolled', scrollTop > 40);
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
+
+// ─── REVEAL ON SCROLL ───
+const revealEls = document.querySelectorAll('.reveal, .reveal-scale');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+revealEls.forEach(el => revealObserver.observe(el));
+
+// ─── COUNT-UP STATS ───
+function animateCount(el){
+  const target = parseFloat(el.dataset.count);
+  const isDecimal = el.dataset.decimal === 'true';
+  const suffix = el.dataset.suffix || '';
+  const duration = 1400;
+  const start = performance.now();
+
+  function tick(now){
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = target * eased;
+    el.textContent = (isDecimal ? current.toFixed(1) : Math.floor(current)) + suffix;
+    if (progress < 1) requestAnimationFrame(tick);
+    else el.textContent = (isDecimal ? target.toFixed(1) : target) + suffix;
+  }
+  requestAnimationFrame(tick);
+}
+
+const countEls = document.querySelectorAll('[data-count]');
+const countObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      animateCount(entry.target);
+      countObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.5 });
+countEls.forEach(el => countObserver.observe(el));
+
+// ─── MODAL RESEÑA ───
+let selectedStars=5;
+const stars=document.querySelectorAll('.modal-star');
+
+function openModal(){document.getElementById('modalBg').classList.add('open')}
+function closeModal(){document.getElementById('modalBg').classList.remove('open')}
+
+stars.forEach(s=>{
+  s.addEventListener('mouseover',()=>{
+    const v=+s.dataset.val;
+    stars.forEach(st=>st.classList.toggle('active',+st.dataset.val<=v));
+  });
+  s.addEventListener('click',()=>{
+    selectedStars=+s.dataset.val;
+    stars.forEach(st=>st.classList.toggle('active',+st.dataset.val<=selectedStars));
+  });
+});
+document.getElementById('modalStars').addEventListener('mouseleave',()=>{
+  stars.forEach(st=>st.classList.toggle('active',+st.dataset.val<=selectedStars));
+});
+stars.forEach(st=>st.classList.toggle('active',+st.dataset.val<=selectedStars));
+
+document.getElementById('modalBg').addEventListener('click',function(e){
+  if(e.target===this)closeModal();
+});
+
+function submitReview(){
+  // Reemplazá TU_PLACE_ID con el Place ID de tu negocio en Google Maps
+  // Para encontrarlo: busca tu negocio en maps.google.com > compartir > el ID está en la URL
+  window.open('https://search.google.com/local/writereview?placeid=TU_PLACE_ID','_blank');
+  closeModal();
+}
+</script>
+</body>
+</html>
